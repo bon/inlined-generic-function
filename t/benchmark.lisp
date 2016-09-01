@@ -75,23 +75,23 @@ In this example, the code for dispatching DOUBLE-FLOAT is removed.
 
 (defgeneric normal-plus (a b))
 
-(defmethod normal-plus :around ((a number) (b number))
-  (+ a b)
+(defmethod normal-plus :around (a (b number))
+  (+ (contents a) b)
   (call-next-method))
 
-(defmethod normal-plus ((a fixnum) (b fixnum))
-  (+ a b))
-(defmethod normal-plus ((a double-float) (b double-float))
-  (+ a b))
+(defmethod normal-plus ((a box) (b fixnum))
+  (+ (contents a) b))
+(defmethod normal-plus ((a box) (b double-float))
+  (+ (contents a) b))
 
 (defun func-using-normal-plus (a b)
   (declare (optimize (speed 3) (safety 0)))
-  (normal-plus a b))
+  (normal-plus (boxify a) b))
 
 (defun func-using-normal-inlined-plus (a b)
   (declare (inline plus))
   (declare (optimize (speed 3) (safety 0)))
-  (normal-plus a b))
+  (normal-plus (boxify a) b))
 
 (defvar *input* (iter (repeat 1000)
                       (collect (cons (random 100.0d0) (random 100.0d0)))
